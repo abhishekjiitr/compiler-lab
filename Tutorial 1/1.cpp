@@ -1,4 +1,5 @@
 #include <iostream>
+#include <stdio.h>
 #include <string>
 using namespace std;
 
@@ -10,10 +11,9 @@ int dfa[][3] = {
 	{4, 3, 0}
 };
 
-
-
 int main()
 {
+    // freopen("input1.in", "r", stdin);
 	string S;
 	cout << "Enter input string\n";
 	cin >> S;

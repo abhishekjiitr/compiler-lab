@@ -17,7 +17,7 @@ int get_index(char symbol)
 
 int main()
 {
-	freopen("input3.in", "r", stdin);
+	// freopen("input3.in", "r", stdin);
 	printf("Input number of alphabets:\n");
 	cin >> alphabet_size;
 	printf("Enter the alphabets:\n");
