@@ -1,2 +1,9 @@
-srt_client_sock()
+srt_client_connect()
 SYN_MAX_RETRY exceed
+srt_client_connect()
+SYN_TIMEOUT
+Receive SYNACK
+srt_client_disconnect()
+receive FINACK
+INVALID
+srt_client close()
