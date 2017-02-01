@@ -1,0 +1,6 @@
+srt_svr_accept()
+receive SYN
+receive SYN
+receive FIN
+CLOSE_WAIT_TIMEOUT
+srt_svr_close()
