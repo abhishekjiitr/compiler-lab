@@ -13,8 +13,8 @@ class CFG
     public:
         set<char> FIRST[256], FOLLOW[256];
         vector<string> R[256];
-        int S;
-        bool change;
+        char S;
+        bool changeFirst, changeFollow;
         int T[256], V[256];
         void printFirst()
         {
@@ -35,6 +35,45 @@ class CFG
                 }
             }
         }
+        void printFollow()
+        {
+            cout << "FOLLOW SET\n";
+            for(int i=0;i<256;i++)
+            {
+                set<char> fst = FOLLOW[i];
+                set<char>::iterator it;
+                if ( R[i].size() )
+                {
+                    cout << char(i) << ": ";
+                    if (fst.size())
+                        {           
+                            for(it=fst.begin(); it != fst.end() ;it++)
+                                cout << *it << " ";
+                        }
+                    cout << endl;
+                }
+            }
+        }
+        void printTerminals()
+        {
+            cout << "Terminals: ";
+            for(int i=0; i<256; i++)
+            {
+                if (T[i])
+                    cout << char(i) << " ";
+            }
+            cout << endl;
+        }
+        void printVariables()
+        {
+            cout << "Variables: ";
+            for(int i=0; i<256; i++)
+            {
+                if (V[i])
+                    cout << char(i) << " ";
+            }
+            cout << endl;
+        }
         bool isUpper(char c)
         {
             return c >= 'A' and c <= 'Z';
@@ -45,7 +84,7 @@ class CFG
             {
                 T[i] = 0; V[i] = 0;
             }
-            change = false;
+            changeFirst = false;
         }
         vector<string> mysplit(string s)  // splits the string using '|' as a separator
         {
@@ -70,6 +109,8 @@ class CFG
         void addStartVariable(char S)
         {
             this -> S = S;
+            FOLLOW[S].insert('$');
+
         }
         void addProduction(char A, string s)
         {
@@ -121,14 +162,14 @@ class CFG
                 }
             }
             int sz2 = FIRST[i].size();
-            if ( not change )
-                change = sz1 != sz2;
+            if ( not changeFirst )
+                changeFirst = sz1 != sz2;
         }
         void computeFirst()
         {
             // printFirst();
             // cout << "CALLED\n";
-            change = false;
+            changeFirst = false;
             for(int i=0; i<256; i++)
             {
                 vector<string> res = R[i];
@@ -138,10 +179,92 @@ class CFG
                     addFirst(i, j, 0);
                 }
             }
-            if ( change )
+            if ( changeFirst )
             {
                 // cout << "CHANGED\n";
                 computeFirst();
+            }
+        }
+        void addFollow(int v, int i, int j, int k)
+        {
+            int sz1 = FOLLOW[v].size();
+            vector<string> res = R[i];
+            string currentRule = res[j];
+            if ( k == currentRule.length() )
+                {
+                    set<char> uni, a = FOLLOW[v], b = FOLLOW[i];
+                        set_union (a.begin(), a.end(),
+                                   b.begin(), b.end(),
+                                   inserter(uni, uni.begin()));
+                    FOLLOW[v] = uni;
+                    return;
+                }
+            if( k > currentRule.length() )
+                return;
+            char c = currentRule[k];
+            if ( not isUpper(c) )
+            {
+                FOLLOW[v].insert(c);
+            }
+            else
+            {
+                set<char> uni, a = FOLLOW[v], b = FIRST[c];
+                    set_union (a.begin(), a.end(),
+                               b.begin(), b.end(),
+                               inserter(uni, uni.begin()));
+                if ( b.find(eps) != b.end() )
+                {
+                    uni.erase(eps);
+                    FOLLOW[v] = uni;
+                    if (  k == currentRule.length()-1 )
+                        {
+                            set<char> uni, a = FOLLOW[v], b = FOLLOW[i];
+                                set_union (a.begin(), a.end(),
+                                           b.begin(), b.end(),
+                                           inserter(uni, uni.begin()));
+                            FOLLOW[v] = uni;
+                        }
+                    else
+                        addFirst(i, j, k+1);
+                    
+                }
+                else
+                {
+                    FOLLOW[v] = uni;
+                }
+            }
+            int sz2 = FOLLOW[v].size();
+            if ( not changeFollow )
+                changeFollow = sz1 != sz2;
+        }
+        void computeFollow()
+        {
+            changeFollow = false;
+            for(int v=0;v<256;v++)
+            {
+                if ( V[v] )
+                {
+                    for(int i=0;i<256;i++)
+                    {
+                        vector<string> res = R[i];
+                        for(int j=0; j < res.size(); j++)
+                        {
+                            string currentRule = res[j];
+                            for(int k=0; k < currentRule.size() ; k++)
+                            {
+                                // cout << currentRule[k];
+                                if ( currentRule[k] == v )
+                                {
+                                    addFollow(v, i, j, k+1);
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            if ( changeFollow )
+            {
+                computeFollow();
             }
         }
 };
@@ -149,9 +272,14 @@ class CFG
 int main()
 {
     CFG gmr;
-    gmr.addStartVariable('A');
-    gmr.addProduction('A', "B|d");
-    gmr.addProduction('B', "ac|{");
+    gmr.addStartVariable('S');
+    gmr.addProduction('S', "xyz|aBC");
+    gmr.addProduction('B', "c|cd");
+    gmr.addProduction('C', "eg|df");
+    gmr.printTerminals();
+    gmr.printVariables();
     gmr.computeFirst();
     gmr.printFirst();
+    gmr.computeFollow();
+    gmr.printFollow();
 }
