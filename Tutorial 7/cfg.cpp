@@ -16,6 +16,25 @@ class CFG
         int S;
         bool change;
         int T[256], V[256];
+        void printFirst()
+        {
+            cout << "FIRST SET\n";
+            for(int i=0;i<256;i++)
+            {
+                set<char> fst = FIRST[i];
+                set<char>::iterator it;
+                if ( R[i].size() )
+                {
+                    cout << char(i) << ": ";
+                    if (fst.size())
+                        {           
+                            for(it=fst.begin(); it != fst.end() ;it++)
+                                cout << *it << " ";
+                        }
+                    cout << endl;
+                }
+            }
+        }
         bool isUpper(char c)
         {
             return c >= 'A' and c <= 'Z';
@@ -71,6 +90,8 @@ class CFG
         }
         void addFirst(int i, int j, int index)
         {
+            if ( index >= R[i][j].size() )
+                return;
             int sz1 = FIRST[i].size();
             char c = R[i][j][index];
             if ( not isUpper(c) )
@@ -83,15 +104,21 @@ class CFG
                     set_union (a.begin(), a.end(),
                                b.begin(), b.end(),
                                inserter(uni, uni.begin()));
+
                 if ( b.find(eps) != b.end() )
                 {
-                    if ( index != R[i][j].size() )
-                        addFirst(i, j, index+1);
-                    else
+                    uni.erase(eps);
+                    FIRST[i] = uni;
+                    if ( index == R[i][j].size()-1 )
                         FIRST[i].insert(eps);
+                    else
+                        addFirst(i, j, index+1);
+                    
                 }
-
-                FIRST[i] = uni;
+                else
+                {
+                    FIRST[i] = uni;
+                }
             }
             int sz2 = FIRST[i].size();
             if ( not change )
@@ -99,6 +126,8 @@ class CFG
         }
         void computeFirst()
         {
+            // printFirst();
+            // cout << "CALLED\n";
             change = false;
             for(int i=0; i<256; i++)
             {
@@ -110,7 +139,10 @@ class CFG
                 }
             }
             if ( change )
+            {
+                // cout << "CHANGED\n";
                 computeFirst();
+            }
         }
 };
 
@@ -119,21 +151,7 @@ int main()
     CFG gmr;
     gmr.addStartVariable('A');
     gmr.addProduction('A', "B|d");
-    gmr.addProduction('B', "ab|e");
+    gmr.addProduction('B', "ac|{");
     gmr.computeFirst();
-    cout << "FIRST SET\n";
-    for(int i=0;i<256;i++)
-    {
-        set<char> fst = gmr.FIRST[i];
-        set<char>::iterator it;
-        if (fst.size())
-            {
-                cout << char(i) << ": ";
-                
-                for(it=fst.begin(); it != fst.end() ;it++)
-                    cout << *it << " ";
-                cout << endl;
-            }
-    }
-
+    gmr.printFirst();
 }
