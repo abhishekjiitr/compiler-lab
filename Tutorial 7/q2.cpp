@@ -4,6 +4,7 @@
 #include <set>
 #include <algorithm>
 #include <iterator>
+#define myit set<char>::iterator
 using namespace std;
 
 #define eps '{'
@@ -15,6 +16,7 @@ class CFG
         vector<string> R[256];
         char S;
         bool changeFirst, changeFollow;
+        int pptable[256][256];
         int T[256], V[256];
         void printFirst()
         {
@@ -83,8 +85,11 @@ class CFG
             for(int i=0 ; i<256 ; i++)
             {
                 T[i] = 0; V[i] = 0;
+                for(int j=0; j<256; j++)
+                    pptable[i][j] = 0;
             }
             changeFirst = false;
+
         }
         vector<string> mysplit(string s)  // splits the string using '|' as a separator
         {
@@ -294,7 +299,6 @@ class CFG
             {
                 myFirst = uni;
             }
-
         }
         set<char> getFirstS(string s)
         {
@@ -308,6 +312,61 @@ class CFG
             for(it = myset.begin() ; it != myset.end() ; it++)
             {
                 cout << *it << " ";
+            }
+            cout << endl;
+        }
+        void printParsingTable()
+        {
+            cout << "PREDECTIVE PARSING TABLE\n";
+            cout << "  ";
+            for(int i=0;i<256;i++)
+            {
+                if ( T[i] || i == '$' )
+                    cout << char(i) << " ";
+            }
+        }
+        bool constructPPTable()
+        {
+            bool possible = true;
+            for(int i=0 ; i<256; i++)
+            {
+                if ( V[i] )
+                {
+                    vector<string> res = R[i];
+                    for (int j=0; j<res.size() ; j++)
+                    {
+                        string currentRule = res[j];
+                        set<char> myFirst = getFirstS(currentRule);
+                        myit it;
+                        for(it = myFirst.begin() ; it != myFirst.end() ; it++)
+                        {
+                            char c = *it;
+                            if ( c != eps )
+                            {
+                                if (pptable[i][c] == 0)
+                                    pptable[i][c] = i+1;
+                                else
+                                    possible = false;
+                            }
+                        }
+                        if (myFirst.find(eps) != myFirst.end())
+                        {
+                            set<char> myFollow = FOLLOW[i];
+                            myit it;
+                            for(it = myFollow.begin() ; it != myFollow.end() ; it++)
+                            {
+                                char c = *it;
+                                if ( c != eps )
+                                {
+                                    if (pptable[i][c] == 0)
+                                        pptable[i][c] = i+1;
+                                    else
+                                        possible = false;
+                                }
+                            }   
+                        }  
+                    }
+                }
             }
         }
 };
@@ -328,4 +387,5 @@ int main()
     set<char> myfst = gmr.getFirstS("CS");
     cout << "FIRST OF GIVEN STRING: ";
     gmr.printSet(myfst);
+    gmr.printParsingTable();
 }
