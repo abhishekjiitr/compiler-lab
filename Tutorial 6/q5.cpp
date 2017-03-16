@@ -10,31 +10,32 @@ bool match(char x)
 }
 bool E1(int savedCur)
 {
-    // cout<<"E1 "<<savedCur<<endl;
+    cout<<"E1 "<<savedCur<<endl;
     cursor = savedCur;
     return match('a') and S(cursor) and match('a');
 }
 bool E2(int savedCur)
 {
-    // cout<<"E2 "<<savedCur<<endl;
+    cout<<"E2 "<<savedCur<<endl;
     cursor = savedCur;
     return match('a') and match('a');
 }
-bool S(int savedCur)
+bool S(int savedCur, stack<string> S)
 {
-    // cout<<"S "<<savedCur<<endl;
+    cout<<"S "<<savedCur<<endl;
     cursor = savedCur;
     if (E1(savedCur))
         return  true;
     cursor = savedCur;
-    return E2(savedCur);
+    E2(savedCur);
 }
 int main()
 {
-    s = "aaaa";
-    if ( S(0) and cursor == s.length() )
+    s = "aaaaaa";
+    stack<string> S;
+    if ( S(0, S) and cursor == s.length() )
         printf("Parsed");
-    else
+        
         printf("Cannot Parse");
     // cout<<endl<<cursor;
 }

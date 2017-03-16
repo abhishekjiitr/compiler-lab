@@ -4,6 +4,7 @@ using namespace std;
 bool S(int savedCur);
 string s;
 int cursor;
+int savedCursor;
 bool match(char x)
 {   
     return cursor < s.length() and x == s[cursor++];
@@ -17,7 +18,7 @@ bool E1(int savedCur)
 bool E2(int savedCur)
 {
     // cout<<"E2 "<<savedCur<<endl;
-    cursor = savedCur;
+    savedCursor = savedCur;
     return match('b') and S(cursor) and match('a') and S(cursor);
 }
 bool S(int savedCur)
@@ -34,7 +35,7 @@ bool S(int savedCur)
 }
 int main()
 {
-    s = "abba";
+    s = "aa";
     if ( S(0) and cursor == s.length() )
         printf("Parsed");
     else

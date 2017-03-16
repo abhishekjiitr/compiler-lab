@@ -59,14 +59,14 @@ string ReplaceString(string subject, const string& search,
 }
 int main()
 {
-    s = "not(true or false)";
+    s = "not not true";
     s = ReplaceString(s, "not", "c");
     s = ReplaceString(s, "true", "d");
     s = ReplaceString(s, "false", "e");
     s = ReplaceString(s, "or", "a");
     s = ReplaceString(s, "and", "b");
     s = ReplaceString(s, " ", "");
-    cout << s;
+    // cout << s;
     if ( E(0) and cursor == s.length() )
         printf("Parsed");
     else
