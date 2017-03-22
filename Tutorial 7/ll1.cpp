@@ -4,6 +4,7 @@
 #include <set>
 #include <algorithm>
 #include <iterator>
+#include <stack>
 #define myit set<char>::iterator
 using namespace std;
 
@@ -12,10 +13,11 @@ using namespace std;
 class CFG
 {
     public:
+        stack<char> pstack;
         set<char> FIRST[256], FOLLOW[256];
         vector<string> R[256];
         char S;
-        bool changeFirst, changeFollow;
+        bool changeFirst, changeFollow, parsingTable;
         int pptable[256][256];
         int T[256], V[256];
         void printFirst()
@@ -89,7 +91,7 @@ class CFG
                     pptable[i][j] = 0;
             }
             changeFirst = false;
-
+            parsingTable = true;
         }
         vector<string> mysplit(string s)  // splits the string using '|' as a separator
         {
@@ -317,13 +319,30 @@ class CFG
         }
         void printParsingTable()
         {
-            cout << "PREDECTIVE PARSING TABLE\n";
+            cout << "\nPREDECTIVE PARSING TABLE\n";
             cout << "  ";
             for(int i=0;i<256;i++)
             {
-                if ( T[i] || i == '$' )
+                if ( (T[i] || i == '$') and i != '{' )
                     cout << char(i) << " ";
             }
+            cout << endl;
+            for(int i=0; i<256 ; i++)
+            {
+                if ( V[i] and i != '{' )
+                {
+                    cout << char(i) << " ";
+                    for(int j=0; j<256 ; j++)
+                    {
+                        if ( (T[j] || j == '$') and j != eps)
+                        {
+                            cout << pptable[i][j] << " ";
+                        }
+                    }
+                    cout << endl;
+                }
+            }
+            cout << endl;
         }
         bool constructPPTable()
         {
@@ -332,19 +351,24 @@ class CFG
             {
                 if ( V[i] )
                 {
+                    cout << char(i) << endl;
                     vector<string> res = R[i];
                     for (int j=0; j<res.size() ; j++)
                     {
                         string currentRule = res[j];
+                        cout << currentRule << endl;
                         set<char> myFirst = getFirstS(currentRule);
+                        // cout << "FIRST: " << j << " ";
+                        // printSet(myFirst);
                         myit it;
                         for(it = myFirst.begin() ; it != myFirst.end() ; it++)
                         {
                             char c = *it;
+                            // cout << "CHAR IS " << c << endl;
                             if ( c != eps )
                             {
                                 if (pptable[i][c] == 0)
-                                    pptable[i][c] = i+1;
+                                    pptable[i][c] = j+1;
                                 else
                                     possible = false;
                             }
@@ -359,7 +383,7 @@ class CFG
                                 if ( c != eps )
                                 {
                                     if (pptable[i][c] == 0)
-                                        pptable[i][c] = i+1;
+                                        pptable[i][c] = j+1;
                                     else
                                         possible = false;
                                 }
@@ -368,6 +392,62 @@ class CFG
                     }
                 }
             }
+            parsingTable = possible;
+        }
+        bool parse(string s)
+        {
+            s += "$";
+            bool parsingPossible = true;
+            pstack.push('$');
+            pstack.push(S);
+            int i = 0;
+            while (i < s.length())
+            {
+                int curr = pstack.top();
+                cout << "Stack: " << char(curr)<< ", String: " << s[i] << endl;
+                if ( T[curr] || curr == '$' )
+                {
+                    if ( curr == s[i] )
+                        {
+                            cout << "Match: " << char(curr) << endl;
+                            pstack.pop();
+                            i++;
+                        }
+                    else
+                    {
+                        parsingPossible = false;
+                        break;
+                    }
+                }
+                else // if non-terminal
+                {
+                    int ruleno = pptable[curr][s[i]]-1;
+                    // cout << "Ruleno " <<ruleno << endl;
+                    // string rule = R[curr][ruleno];
+                    vector<string> rules = R[curr];
+                    // cout << rules.size() << endl;
+                    if ( ruleno < rules.size() )
+                    {
+                        string myrule = rules[ruleno];
+                        cout << "Using Rule: " << char(curr) << " -> " << myrule << endl;
+                        pstack.pop();
+                        for(int index=myrule.length()-1 ; index>= 0 ; index--)
+                        {
+                            if ( myrule[index] != eps )
+                                pstack.push(myrule[index]);
+                            cout << "Pushing " <<myrule[index] << endl;
+                        }
+                    }
+                    // i++;
+                    cout << endl;
+                }
+            }
+            if ( pstack.empty() )
+            {
+                parsingPossible = true;
+            }
+            // cout << parsingPossible << endl;
+            return parsingPossible;
         }
 };
 
@@ -375,17 +455,21 @@ int main()
 {
     CFG gmr;
     gmr.addStartVariable('S');
-    gmr.addProduction('S', "xyz|aBC");
-    gmr.addProduction('B', "c|cd");
-    gmr.addProduction('C', "eg|df|{");
+    gmr.addProduction('S', "(S)|{");
     gmr.printTerminals();
     gmr.printVariables();
     gmr.computeFirst();
     gmr.printFirst();
     gmr.computeFollow();
     gmr.printFollow();
-    set<char> myfst = gmr.getFirstS("CS");
-    cout << "FIRST OF GIVEN STRING: ";
-    gmr.printSet(myfst);
+    // set<char> myfst = gmr.getFirstS("S");
+    // cout << "FIRST OF GIVEN STRING: ";
+    // gmr.printSet(myfst);
+    gmr.constructPPTable();
     gmr.printParsingTable();
+    string inp = "(())";
+    if ( gmr.parse(inp) )
+        cout << "String Parsed Successfully\n";
+    else
+        cout << "Cannot Parse given string\n";
 }
