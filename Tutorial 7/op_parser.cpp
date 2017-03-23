@@ -139,22 +139,51 @@ class CFG
 
         bool parse(string s)
         {
+            bool possible = false;
             s += "$";
             opstack.push('$');
-
+            int i=0;
+            while ( i < s.length() )
             {
                 char curr = opstack.top();
-
+                cout << "Stack: " << char(curr)<< ", String: " << s[i] << endl;
                 if ( optable[curr][s[i]] < 0 )
                 {
-
+                    cout << "Pushing " << s[i] << endl;
+                    opstack.push(s[i]);
+                    i++;
                 }
                 else if ( optable[curr][s[i]] > 0 )
                 {
-                    
+                    // cout << "HERE";
+                    // Reduce or pop
+                    vector<string> rules = R[S];
+                    string myrule;
+                    if ( curr == id )
+                    {
+                        myrule = rules[2];
+                    }
+                    else if ( curr == '+' )
+                    {
+                        myrule = rules[0];
+                    }
+                    else if ( curr == '*' )
+                    {
+                        myrule = rules[1];
+                    }
+                    cout << "Reducing Using Rule: " << S << " -> " << myrule << endl;
+                    opstack.pop();
                 }
+                else
+                {
+                    if ( curr == '$' )
+                        possible = true;
+                    else possible = false;
+                    i++;
+                }
+                cout << endl;   
             }
-
+            return possible;
         }
         void constructOPTable()
         {
