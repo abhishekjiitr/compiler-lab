@@ -60,7 +60,7 @@ bool S2(int savedCur)
 
 int main()
 {
-    s = "aaaaaaaaaa";
+    s = "aaaaaa";
     if ( (S1(0) or S2(0) ) and cursor == s.length() )
         printf("Parsed");
     else

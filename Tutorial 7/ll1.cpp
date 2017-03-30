@@ -232,7 +232,7 @@ class CFG
                             FOLLOW[v] = uni;
                         }
                     else
-                        addFirst(i, j, k+1);
+                        addFollow(v, i, j, k+1);
                     
                 }
                 else
@@ -416,6 +416,7 @@ class CFG
                     else
                     {
                         parsingPossible = false;
+                        return false;
                         break;
                     }
                 }
@@ -455,7 +456,9 @@ int main()
 {
     CFG gmr;
     gmr.addStartVariable('S');
-    gmr.addProduction('S', "(S)|{");
+    gmr.addProduction('S', "aABb");
+    gmr.addProduction('A', "c|{");
+    gmr.addProduction('B', "d|{");
     gmr.printTerminals();
     gmr.printVariables();
     gmr.computeFirst();
@@ -467,7 +470,7 @@ int main()
     // gmr.printSet(myfst);
     gmr.constructPPTable();
     gmr.printParsingTable();
-    string inp = "(())";
+    string inp = "acdb";
     if ( gmr.parse(inp) )
         cout << "String Parsed Successfully\n";
     else

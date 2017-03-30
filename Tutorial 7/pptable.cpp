@@ -230,7 +230,7 @@ class CFG
                             FOLLOW[v] = uni;
                         }
                     else
-                        addFirst(i, j, k+1);
+                        addFollow(v, i, j, k+1);
                     
                 }
                 else
@@ -382,7 +382,10 @@ class CFG
                                     if (pptable[i][c] == 0)
                                         pptable[i][c] = j+1;
                                     else
+                                    {
                                         possible = false;
+                                        return false;;
+                                    }
                                 }
                             }   
                         }  

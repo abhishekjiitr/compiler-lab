@@ -225,7 +225,7 @@ class CFG
                             FOLLOW[v] = uni;
                         }
                     else
-                        addFirst(i, j, k+1);
+                        addFollow(v, i, j, k+1);
                     
                 }
                 else
@@ -272,10 +272,14 @@ class CFG
 int main()
 {
     CFG gmr;
+    // gmr.addStartVariable('S');
+    // gmr.addProduction('S', "xyz|aBC");
+    // gmr.addProduction('B', "c|cd");
+    // gmr.addProduction('C', "eg|df");
     gmr.addStartVariable('S');
-    gmr.addProduction('S', "xyz|aBC");
-    gmr.addProduction('B', "c|cd");
-    gmr.addProduction('C', "eg|df");
+    gmr.addProduction('S', "aABb");
+    gmr.addProduction('A', "c|{");
+    gmr.addProduction('B', "d|{");
     gmr.printTerminals();
     gmr.printVariables();
     gmr.computeFirst();

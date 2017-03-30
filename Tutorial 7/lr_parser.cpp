@@ -170,7 +170,7 @@ class CFG
                     char next = res[1];
                     lrstack.push(strsymbol);
                     lrstack.push(next);
-                    i++;
+                        i++;
                 }
                 else if ( res[0] == 'r' )
                 {
@@ -208,7 +208,6 @@ class CFG
             lrtable['3']['a'] = "s3";
             lrtable['3']['b'] = "s4";
             lrtable['3']['A'] = "6";
-
 
             lrtable['4']['a'] = "r3";
             lrtable['4']['b'] = "r3";
