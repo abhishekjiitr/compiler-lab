@@ -18,7 +18,7 @@ bool E2(int savedCur)
 {
     // cout<<"E2 "<<savedCur<<endl;
     cursor = savedCur;
-    return match('a') and match('a');
+    return match('a ') and match('a');
 }
 bool S(int savedCur)
 {
@@ -31,7 +31,7 @@ bool S(int savedCur)
 }
 int main()
 {
-    s = "aaaa";
+    s = "aaaaaa";
     if ( S(0) and cursor == s.length() )
         printf("Parsed");
     else
